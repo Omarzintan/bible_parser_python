@@ -1,5 +1,10 @@
 # Bible XML Parser
 
+![PyPI](https://img.shields.io/pypi/v/bible-xml-parser)
+![Python Versions](https://img.shields.io/pypi/pyversions/bible-xml-parser)
+![License](https://img.shields.io/pypi/l/bible-xml-parser)
+![Downloads](https://img.shields.io/pypi/dm/bible-xml-parser)
+
 A Python package for parsing Bible texts in various XML formats (USFX, OSIS, ZEFANIA). This package provides both direct parsing and database-backed approaches for handling Bible data in your Python applications.
 
 ## Features
