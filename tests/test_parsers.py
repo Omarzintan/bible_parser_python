@@ -23,10 +23,12 @@ SAMPLE_OSIS_XML_ALTERNATIVE = """<?xml version="1.0" encoding="UTF-8"?>
 <osis xmlns="http://www.bibletechnologies.net/2003/OSIS/namespace">
   <osisText osisIDWork="KJV">
     <div type="book" osisID="Gen">
-      <chapter osisRef="Gen.1" sID="Gen.1.seID.00001" n="1">
-        <verse osisID="Gen.1.1" sID="Gen.1.1.seID.00002" n="1">In the beginning God created the heaven and the earth.<verse eID="Gen.1.1.seID.00002"/>
-        <verse osisID="Gen.1.2" sID="Gen.1.2.seID.00003" n="2">And the earth was without form, and void; and darkness was upon the face of the deep.<verse eID="Gen.1.2.seID.00003"/>
-      <chapter eID="Gen.1.seID.00001"/>
+      <chapter osisRef="Gen.1" sID="Gen.1.seID.00001" n="1" />
+      <verse osisID="Gen.1.1" sID="Gen.1.1.seID.00002" n="1" />In the beginning God created the heaven and the earth.
+      <verse eID="Gen.1.1.seID.00002" />
+      <verse osisID="Gen.1.2" sID="Gen.1.2.seID.00003" n="2" />And the earth was without form, and void; and darkness was upon the face of the deep.
+      <verse eID="Gen.1.2.seID.00003" />
+      <chapter eID="Gen.1.seID.00001" />
     </div>
   </osisText>
 </osis>
@@ -47,8 +49,10 @@ SAMPLE_USFX_XML_ALTERNATIVE = """<?xml version="1.0" encoding="UTF-8"?>
 <usfx>
   <book id="GEN">
     <c id="1"/>
-      <v id="1">In the beginning God created the heaven and the earth.<ve/>
-      <v id="2">And the earth was without form, and void; and darkness was upon the face of the deep.<ve/>
+    <v id="1"/>In the beginning God created the heaven and the earth.
+    <ve/>
+    <v id="2"/>And the earth was without form, and void; and darkness was upon the face of the deep.
+    <ve/>
   </book>
 </usfx>
 """

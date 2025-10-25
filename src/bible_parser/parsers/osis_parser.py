@@ -61,18 +61,12 @@ class OsisParser(BaseParser):
             ParseError: If parsing fails.
         """
         content = self.get_content()
-        
-        # Fix malformed XML: nested tags with eID
-        # Replace <verse eID="..."/> and <chapter eID="..."/> with closing tags
-        import re
-        content = re.sub(r'<verse\s+eID="[^"]*"\s*/>', '</verse>', content)
-        content = re.sub(r'<chapter\s+eID="[^"]*"\s*/>', '</chapter>', content)
-        
         content_bytes = content.encode("utf-8")
         
         books_dict = {}  # Store books by ID
         current_book_id: Optional[str] = None
-        current_verse: Optional[Verse] = None
+        current_verse_data: Optional[dict] = None  # Store verse being built
+        verse_text_parts = []  # Collect text for current verse
         inside_note = False
         
         try:
@@ -95,34 +89,76 @@ class OsisParser(BaseParser):
                                 )
                     
                     elif tag == "verse":
-                        # Start of a verse
-                        osis_id = elem.get("osisID", "")
-                        if osis_id and current_book_id:
+                        # Check for sID (start of verse with sID/eID pattern)
+                        sid = elem.get("sID")
+                        if sid and current_book_id:
+                            # Extract osisID from sID or use osisID attribute
+                            osis_id = elem.get("osisID", "")
+                            if not osis_id:
+                                # Parse from sID (format: Book.Chapter.Verse.seID.xxxxx)
+                                osis_id = ".".join(sid.split(".")[:3])
+                            
                             book_id, chapter_num, verse_num = self._parse_osis_id(osis_id)
                             
-                            # Get text content from the element
-                            verse_text = elem.text or ""
+                            # Start collecting text for this verse
+                            current_verse_data = {
+                                "book_id": book_id or current_book_id,
+                                "chapter_num": chapter_num,
+                                "verse_num": verse_num,
+                            }
+                            verse_text_parts = []
+                        
+                        # Check for eID (end of verse with sID/eID pattern)
+                        elif elem.get("eID") and current_verse_data:
+                            # Verse is complete, create it
+                            verse_text = " ".join(verse_text_parts).strip()
+                            verse = Verse(
+                                num=current_verse_data["verse_num"],
+                                chapter_num=current_verse_data["chapter_num"],
+                                text=verse_text,
+                                book_id=current_verse_data["book_id"],
+                            )
                             
-                            current_verse = Verse(
+                            # Add to book
+                            if current_verse_data["book_id"] in books_dict:
+                                books_dict[current_verse_data["book_id"]].verses.append(verse)
+                            
+                            current_verse_data = None
+                            verse_text_parts = []
+                        
+                        # Handle old-style OSIS (osisID without sID/eID)
+                        elif elem.get("osisID") and not sid and current_book_id:
+                            osis_id = elem.get("osisID", "")
+                            book_id, chapter_num, verse_num = self._parse_osis_id(osis_id)
+                            
+                            # Get text content from the element and its children
+                            verse_text = "".join(elem.itertext()).strip()
+                            
+                            verse = Verse(
                                 num=verse_num,
                                 chapter_num=chapter_num,
-                                text=verse_text.strip(),
+                                text=verse_text,
                                 book_id=book_id or current_book_id,
                             )
+                            
+                            if (book_id or current_book_id) in books_dict:
+                                books_dict[book_id or current_book_id].verses.append(verse)
                     
                     elif tag == "note":
                         inside_note = True
+                    
+                    # Collect text if we're inside a verse (sID/eID pattern)
+                    if current_verse_data and not inside_note and tag != "verse":
+                        if elem.text:
+                            verse_text_parts.append(elem.text)
                 
                 elif event == "end":
-                    if tag == "verse" and current_verse is not None:
-                        # End of verse - add to appropriate book
-                        book_id = current_verse.book_id
-                        if book_id in books_dict:
-                            books_dict[book_id].verses.append(current_verse)
-                        
-                        current_verse = None
+                    # Collect tail text if we're inside a verse
+                    if current_verse_data and not inside_note:
+                        if elem.tail:
+                            verse_text_parts.append(elem.tail)
                     
-                    elif tag == "note":
+                    if tag == "note":
                         inside_note = False
                     
                     elem.clear()

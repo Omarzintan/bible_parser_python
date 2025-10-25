@@ -148,18 +148,14 @@ class UsfxParser(BaseParser):
         """
         content = self.get_content()
         
-        # Fix malformed XML: <ve/> tags inside verse text
-        # Replace <ve/> with </v> to make it valid XML
-        import re
-        content = re.sub(r'<ve\s*/>', '</v>', content)
-        
         # Use BytesIO for iterparse
         from io import BytesIO
         content_bytes = content.encode("utf-8")
         
         current_book: Optional[Book] = None
         current_chapter: Optional[Chapter] = None
-        current_verse: Optional[Verse] = None
+        current_verse_data: Optional[dict] = None  # Store verse being built
+        verse_text_parts = []  # Collect text for current verse
         inside_footnote = False
         inside_xref = False
         
@@ -202,15 +198,29 @@ class UsfxParser(BaseParser):
                         verse_num_str = elem.get("id", "1")
                         verse_num = int(verse_num_str) if verse_num_str.isdigit() else 1
                         
-                        # Get text content from the element
-                        verse_text = elem.text or ""
-                        
-                        current_verse = Verse(
-                            num=verse_num,
-                            chapter_num=current_chapter.num,
-                            text=verse_text.strip(),
-                            book_id=current_book.id,
+                        # Start collecting text for this verse
+                        current_verse_data = {
+                            "num": verse_num,
+                            "chapter_num": current_chapter.num,
+                            "book_id": current_book.id,
+                        }
+                        verse_text_parts = []
+                    
+                    elif tag == "ve" and current_verse_data is not None:
+                        # End of verse marker - create the verse
+                        verse_text = " ".join(verse_text_parts).strip()
+                        verse = Verse(
+                            num=current_verse_data["num"],
+                            chapter_num=current_verse_data["chapter_num"],
+                            text=verse_text,
+                            book_id=current_verse_data["book_id"],
                         )
+                        
+                        if current_chapter is not None:
+                            current_chapter.verses.append(verse)
+                        
+                        current_verse_data = None
+                        verse_text_parts = []
                     
                     elif tag == "f":
                         # Footnote start - skip content
@@ -219,8 +229,45 @@ class UsfxParser(BaseParser):
                     elif tag == "x":
                         # Cross-reference start - skip content
                         inside_xref = True
+                    
+                    # Collect text if we're inside a verse
+                    if current_verse_data and not inside_footnote and not inside_xref and tag not in ["v", "ve"]:
+                        if elem.text:
+                            verse_text_parts.append(elem.text)
                 
                 elif event == "end":
+                    # Handle old-style USFX where <v> contains text and closes with </v>
+                    if tag == "v" and current_verse_data is not None and current_chapter is not None:
+                        # Check if this is old-style (has text content)
+                        # If verse_text_parts is empty, this might be old-style
+                        if not verse_text_parts and elem.text:
+                            # Old-style USFX: <v id="1">text</v>
+                            verse_text = elem.text.strip()
+                        else:
+                            # New-style USFX: <v id="1"/>text<ve/>
+                            verse_text = " ".join(verse_text_parts).strip()
+                        
+                        # Only create verse if we have text (old-style) or if we haven't seen <ve/> yet
+                        if verse_text and not verse_text_parts:
+                            # Old-style - create verse now
+                            verse = Verse(
+                                num=current_verse_data["num"],
+                                chapter_num=current_verse_data["chapter_num"],
+                                text=verse_text,
+                                book_id=current_verse_data["book_id"],
+                            )
+                            
+                            if current_chapter is not None:
+                                current_chapter.verses.append(verse)
+                            
+                            current_verse_data = None
+                            verse_text_parts = []
+                    
+                    # Collect tail text if we're inside a verse
+                    if current_verse_data and not inside_footnote and not inside_xref:
+                        if elem.tail:
+                            verse_text_parts.append(elem.tail)
+                    
                     if tag == "book" and current_book is not None:
                         # End of book - add last chapter if exists
                         if current_chapter is not None:
@@ -233,16 +280,6 @@ class UsfxParser(BaseParser):
                         yield current_book
                         current_book = None
                         current_chapter = None
-                    
-                    elif tag == "v" and current_verse is not None and current_chapter is not None:
-                        # End of verse - collect any tail text and add to chapter
-                        if elem.tail and not inside_footnote and not inside_xref:
-                            tail_text = elem.tail.strip()
-                            if tail_text and current_verse.text:
-                                current_verse.text += " " + tail_text
-                        
-                        current_chapter.verses.append(current_verse)
-                        current_verse = None
                     
                     elif tag == "f":
                         inside_footnote = False
