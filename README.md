@@ -265,5 +265,5 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Support
 
-- 📫 Issues: [GitHub Issues](https://github.com/yourusername/bible_parser_python/issues)
-- 📖 Documentation: [GitHub Wiki](https://github.com/yourusername/bible_parser_python/wiki)
+- 📫 Issues: [GitHub Issues](https://github.com/Omarzintan/bible_parser_python/issues)
+- 📖 Documentation: [GitHub Wiki](https://github.com/Omarzintan/bible_parser_python/wiki)
