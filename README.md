@@ -261,7 +261,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - Inspired by the Ruby [bible_parser](https://github.com/seven1m/bible_parser) library
-- Flutter [bible_parser_flutter](../bible_parser_flutter/) implementation
+- Flutter [bible_parser_flutter](https://github.com/Omarzintan/bible_parser_flutter) implementation
 - Bible XML files from the [open-bibles](https://github.com/seven1m/open-bibles) repository
 
 ## Changelog
