@@ -46,9 +46,9 @@ Check that everything is there:
 4. Release title: `v0.1.0 - Initial Release`
 5. Description:
    ```markdown
-   # bible-parser v0.1.0
+   # bible-xml-parser v0.1.0
    
-   First stable release of the bible-parser package for Python.
+   First stable release of the bible-xml-parser package for Python.
    
    ## Features
    
@@ -64,7 +64,7 @@ Check that everything is there:
    ## Installation
    
    ```bash
-   pip install bible-parser
+   pip install bible-xml-parser
    ```
    
    ## Quick Start

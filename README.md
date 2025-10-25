@@ -1,4 +1,4 @@
-# Bible Parser Python
+# Bible XML Parser
 
 A Python package for parsing Bible texts in various XML formats (USFX, OSIS, ZEFANIA). This package provides both direct parsing and database-backed approaches for handling Bible data in your Python applications.
 
@@ -16,13 +16,13 @@ A Python package for parsing Bible texts in various XML formats (USFX, OSIS, ZEF
 ## Installation
 
 ```bash
-pip install bible-parser
+pip install bible-xml-parser
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/yourusername/bible_parser_python.git
+git clone https://github.com/Omarzintan/bible_parser_python.git
 cd bible_parser_python
 pip install -e ".[dev]"
 ```
