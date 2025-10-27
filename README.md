@@ -14,6 +14,7 @@ A Python package for parsing Bible texts in various XML formats (USFX, OSIS, ZEF
 - 🚀 Memory-efficient streaming XML parsing using defusedxml
 - 🗄️ SQLite database caching for improved performance
 - 🔎 Full-text search functionality (FTS5)
+- 📝 **Bible reference parsing** - Parse references like "John 3:16-18" or "Genesis 1:1-2:3"
 - 🔒 Secure XML parsing (protected against XXE attacks)
 - 📝 Type hints throughout for better IDE support
 - 🐍 Python 3.8+ support
@@ -116,6 +117,43 @@ with BibleRepository(xml_path='bible.xml') as repo:
 # Database automatically closed
 ```
 
+### Bible Reference Parsing
+
+Parse Bible references in various formats and retrieve verses:
+
+```python
+from bible_parser import BibleReferenceFormatter, BibleRepository
+
+with BibleRepository(xml_path='bible.xml') as repo:
+    repo.initialize('bible.db')
+    
+    # Parse a simple verse reference
+    ref = BibleReferenceFormatter.parse("John 3:16", repo)
+    print(f"Book: {ref.book_id}, Chapter: {ref.chapter_num}, Verse: {ref.verse_num}")
+    
+    # Get verses directly (convenience method)
+    verses = BibleReferenceFormatter.get_verses_from_reference("John 3:16-18", repo)
+    for verse in verses:
+        print(f"{verse.chapter_num}:{verse.num} - {verse.text}")
+    
+    # Extract first verse from complex references
+    first = BibleReferenceFormatter.get_first_verse_in_reference("Genesis 1:1-2:3")
+    print(first)  # "Genesis 1:1"
+    
+    # Validate book names
+    is_valid = BibleReferenceFormatter.is_valid_book("John")  # True
+```
+
+**Supported Reference Formats:**
+- Single verse: `"John 3:16"`
+- Verse range: `"John 3:16-18"`
+- Multi-chapter: `"Genesis 1:1-2:3"`
+- Chapter only: `"Psalm 23"`
+- Multi-chapter range: `"Ruth 1-4"`
+- Complex patterns: `"John 3:16,18,20-22"`
+- Semicolon-separated: `"Genesis 1:1-3;2:3-4"`
+- With descriptions: `"1 Samuel 17:1-58 (David and Goliath)"`
+
 ## Supported Formats
 
 ### USFX (Unified Standard Format XML)
@@ -176,6 +214,16 @@ Database-backed repository for efficient Bible data access.
 - `search_verses(query, limit=100)` - Full-text search
 - `close()` - Close database connection
 
+### BibleReferenceFormatter
+
+Utility class for parsing Bible references.
+
+**Methods:**
+- `parse(reference, bible_repository)` - Parse a reference string into a BibleReference object
+- `get_verses_from_reference(reference, bible_repository)` - Parse and retrieve verses in one call
+- `get_first_verse_in_reference(reference)` - Extract the first verse from a complex reference
+- `is_valid_book(book_name)` - Check if a book name is valid
+
 ### Data Models
 
 **Verse:**
@@ -194,6 +242,20 @@ Database-backed repository for efficient Bible data access.
 - `title` (str) - Book title (e.g., 'Genesis', 'Matthew')
 - `chapters` (List[Chapter]) - List of chapters
 - `verses` (List[Verse]) - Flat list of all verses
+
+**BibleReference:**
+- `book_id` (str) - Book identifier
+- `chapter_num` (int) - Starting chapter number
+- `verse_num` (int) - Starting verse number (None for chapter-only)
+- `end_chapter_num` (int) - Ending chapter for multi-chapter ranges
+- `end_verse_num` (int) - Ending verse for verse ranges
+- `is_chapter_only` (bool) - True if reference is chapter-only
+- `additional_verses` (List[VerseRange]) - Additional verses for complex patterns
+
+**VerseRange:**
+- `chapter_num` (int) - Chapter number (optional)
+- `start_verse` (int) - Starting verse number
+- `end_verse` (int) - Ending verse number (None for single verse)
 
 ## Performance Considerations
 

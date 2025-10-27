@@ -58,6 +58,43 @@ python search_example.py
 - Search in specific books
 - Search statistics
 
+### 4. Reference Formatter Example (`reference_formatter_example.py`)
+
+Demonstrates parsing Bible references and retrieving verses.
+
+**Run:**
+```bash
+cd examples
+# Edit the file to add your Bible path, then:
+python reference_formatter_example.py
+```
+
+**Features:**
+- Parse simple verse references (e.g., "John 3:16")
+- Parse verse ranges (e.g., "John 3:16-18")
+- Parse multi-chapter ranges (e.g., "Genesis 1:1-2:3")
+- Parse complex patterns (e.g., "John 3:16,18,20-22")
+- Parse chapter-only references (e.g., "Psalm 23")
+- Parse semicolon-separated references (e.g., "Genesis 1:1-3;2:3-4")
+- Handle parenthetical descriptions (e.g., "1 Samuel 17:1-58 (David and Goliath)")
+- Extract first verse from complex references
+- Validate book names
+- Works with OSIS, USFX, and Zefania formats
+
+**Usage:**
+```python
+from bible_parser import BibleReferenceFormatter, BibleRepository
+
+with BibleRepository(xml_path='bible.xml', format='OSIS') as repo:
+    repo.initialize(':memory:')
+    
+    # Parse a reference
+    ref = BibleReferenceFormatter.parse("John 3:16", repo)
+    
+    # Get verses directly
+    verses = BibleReferenceFormatter.get_verses_from_reference("John 3:16-18", repo)
+```
+
 ## Using Your Own Bible Files
 
 To use your own Bible XML files, simply change the `xml_file` variable in any example:

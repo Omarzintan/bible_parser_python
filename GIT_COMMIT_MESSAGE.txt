@@ -1,0 +1,39 @@
+Release v0.2.0 - Bible Reference Formatter
+
+Major new feature: Bible reference parsing and formatting
+
+Added:
+- BibleReferenceFormatter class for parsing Bible references
+- Support for 8 reference formats (single verse, ranges, multi-chapter, complex patterns, etc.)
+- Cross-format compatibility (OSIS, USFX, Zefania)
+- New data models: BibleReference, VerseRange, ReferenceFormatError
+- Convenience method: get_verses_from_reference()
+- 50 comprehensive tests with 70% code coverage
+- New example: reference_formatter_example.py
+- Updated documentation and README
+
+Changed:
+- Bumped version to 0.2.0
+- Updated package description
+- Enhanced examples README
+
+Security:
+- Input validation (max 500 chars)
+- Complexity limits to prevent abuse
+- Proper error handling
+
+Files modified:
+- pyproject.toml (version bump)
+- dev-docs/CHANGELOG.md (v0.2.0 entry)
+- README.md (reference parsing section)
+- src/bible_parser/__init__.py (exports)
+- src/bible_parser/models.py (new models)
+- src/bible_parser/errors.py (new exception)
+- examples/README.md (new section)
+
+Files added:
+- src/bible_parser/reference_formatter.py (877 lines)
+- tests/test_reference_formatter.py (50 tests)
+- examples/reference_formatter_example.py
+- RELEASE_NOTES_v0.2.0.md
+- dev-docs/REFERENCE_FORMATTER_PLAN.md
