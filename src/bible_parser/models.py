@@ -94,6 +94,9 @@ class Book:
     id: str
     num: int
     title: str
+    long_title: Optional[str] = None
+    short_title: Optional[str] = None
+    abbreviation: Optional[str] = None
     chapters: List[Chapter] = field(default_factory=list)
     verses: List[Verse] = field(default_factory=list)
 
@@ -107,6 +110,9 @@ class Book:
             "id": self.id,
             "num": self.num,
             "title": self.title,
+            "long_title": self.long_title,
+            "short_title": self.short_title,
+            "abbreviation": self.abbreviation,
         }
 
     @classmethod
@@ -123,6 +129,9 @@ class Book:
             id=data["id"],
             num=data["num"],
             title=data["title"],
+            long_title=data.get("long_title"),
+            short_title=data.get("short_title"),
+            abbreviation=data.get("abbreviation"),
         )
 
     def __str__(self) -> str:

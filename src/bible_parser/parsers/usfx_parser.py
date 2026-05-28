@@ -281,6 +281,17 @@ class UsfxParser(BaseParser):
                         current_book = None
                         current_chapter = None
                     
+                    elif tag == "toc" and current_book is not None:
+                        level = int(elem.get("level", "0"))
+                        text = (elem.text or "").strip()
+                        if text:
+                            if level == 1:
+                                current_book.long_title = text
+                            elif level == 2:
+                                current_book.short_title = text
+                            elif level == 3:
+                                current_book.abbreviation = text
+                    
                     elif tag == "f":
                         inside_footnote = False
                     
